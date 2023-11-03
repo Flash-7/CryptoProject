@@ -6,5 +6,8 @@
   {% csrf_token %}{{form|crispy}}
   <p>Don't have an account? Create one <a href="/sign-up">Here</a>!</p>
   <button type="submit" class="btn btn-success">Login</button>
+    <small class="text-muted ml-2">
+        <a href="{% url 'cryptoapp:password_reset' %}">Forgot Password?</a>
+    </small>
 </form>
 {% endblock %}
