@@ -1,0 +1,61 @@
+{% extends "cryptoapp/base.html" %}
+
+{% block title %}Coin List - CryptoApp{% endblock %}
+
+{% block content %}
+    <style>
+        /* Custom CSS for styling the table */
+        .coin-table {
+            width: 100%;
+        }
+        .coin-table th, .coin-table td {
+            background-color: transparent;
+            border: none;
+            padding: 15px; /* Increase cell padding for larger cells */
+        }
+        .negative-change {
+            color: red;
+        }
+        .positive-change {
+            color: green;
+        }
+        .filled-triangle {
+            font-size: 1.2em; /* Adjust the size as needed */
+            line-height: 0;
+        }
+    </style>
+
+    <h1 class="h3 mb-3">Coin List</h1>
+    <div class="table-responsive">
+        <table class="table">
+            <thead class ="thead-light">
+                <tr>
+                    <th class="w-25">Name</th>
+                    <th class="w-15">Symbol</th>
+                    <th class="w-15">24h %</th>
+                    <th class="w-15">Market Cap</th>
+                    <th class="w-15">Volume</th>
+                    <th class="w-20">Circulating Supply</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for coin in coins %}
+                <tr class="py-4" >
+                    <td class="w-25"><a href="{% url 'cryptoapp:coin_details' coin.id %}">{{ coin.name }}</a></td>
+                    <td class="w-15"><a href="{% url 'cryptoapp:coin_details' coin.id %}">{{ coin.symbol }}</a></td>
+                    <td class="w-15 {% if coin.price_change_percentage_24h < 0 %}negative-change{% else %}positive-change{% endif %}">
+                        <span class="{% if coin.price_change_percentage_24h < 0 %}negative-change{% else %}positive-change{% endif %}">
+                            {% if coin.price_change_percentage_24h < 0 %}&#9660;{% else %}&#9650;{% endif %}
+                            {{ coin.price_change_percentage_24h }}%
+                        </span>
+                    </td>
+                    <td class="w-15">${{ coin.market_cap|floatformat:2 }}</td>
+                    <td class="w-15">${{ coin.total_volume|floatformat:2 }}</td>
+                    <td class="w-20">{{ coin.circulating_supply|floatformat:2 }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</style>
+{% endblock %}

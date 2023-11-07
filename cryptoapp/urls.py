@@ -27,4 +27,7 @@ urlpatterns = [
          ),
          name='password_reset_complete'),
 
+    path('coins/', views.coin_list, name='coin_list'),
+    path('coin/<int:id>/', views.coin_details, name='coin_details'),
+
 ]

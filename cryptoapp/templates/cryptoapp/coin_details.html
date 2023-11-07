@@ -1,0 +1,57 @@
+{% extends "cryptoapp/base.html" %}
+
+{% block title %}Coin Details - CryptoApp{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <div class="row">
+            <div class="col-md-8">
+                <h1 class="h3 mb-3">Coin Details</h1>
+                <div class="card" style="max-width: 350px;">
+                    <div class="card-body">
+                        <h2 class="card-title">Name: {{ coin.name }}</h2>
+                        <p class="card-text">24h Percentage: {{ coin.price_change_percentage_24h }}%</p>
+                        <p class="card-text">Market Cap: ${{ coin.market_cap|floatformat:2 }}</p>
+                        <p class="card-text">Volume: ${{ coin.total_volume|floatformat:2 }}</p>
+                        <p class="card-text">Circulating Supply: {{ coin.circulating_supply|floatformat:2 }}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <h2>Price History</h2>
+                <canvas id="priceChart"></canvas>
+            </div>
+        </div>
+
+        <a class="btn btn-primary mt-2" href="{% url 'cryptoapp:coin_list' %}">Back to Coin List</a>
+    </div>
+
+    <script>
+        // JavaScript code for creating the chart
+        var ctx = document.getElementById('priceChart').getContext('2d');
+        var priceData = {
+            labels: ['Time1', 'Time2', 'Time3', 'Time4', 'Time5'], // Replace with actual time labels
+            datasets: [{
+                label: 'Price',
+                data: [10, 20, 15, 25, 30], // Replace with actual price data
+                borderColor: 'rgba(75, 192, 192, 1)', // Line color
+                borderWidth: 2,
+                fill: false
+            }]
+        };
+
+        var priceChart = new Chart(ctx, {
+            type: 'line',
+            data: priceData,
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
+{% endblock %}
