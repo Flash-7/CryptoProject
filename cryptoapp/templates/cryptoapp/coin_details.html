@@ -4,27 +4,38 @@
 
 {% block content %}
     <div class="container">
+        <div class="row mt-2"></div>
         <div class="row">
-            <div class="col-md-8">
-                <h1 class="h3 mb-3">Coin Details</h1>
-                <div class="card" style="max-width: 350px;">
-                    <div class="card-body">
-                        <h2 class="card-title">Name: {{ coin.name }}</h2>
-                        <p class="card-text">24h Percentage: {{ coin.price_change_percentage_24h }}%</p>
-                        <p class="card-text">Market Cap: ${{ coin.market_cap|floatformat:2 }}</p>
-                        <p class="card-text">Volume: ${{ coin.total_volume|floatformat:2 }}</p>
-                        <p class="card-text">Circulating Supply: {{ coin.circulating_supply|floatformat:2 }}</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <h2>Price History</h2>
-                <canvas id="priceChart"></canvas>
+            <div class="col-md-12">
+                <canvas id="priceChart" width="400" height="100"></canvas>
             </div>
         </div>
-
+        <div class="row mt-4"></div>
+        <div class="row">
+            <div class="col-md-4">
+                <strong class="stylish-font">Name:</strong> {{ coin.name }}<br>
+                <strong class="stylish-font">24h Percentage:</strong> {{ coin.price_change_percentage_24h }}%<br>
+                <strong class="stylish-font">Market Cap:</strong> ${{ coin.market_cap|floatformat:2 }}<br>
+                <strong class="stylish-font">ATH:</strong> ${{ coin.ath|floatformat:2 }}<br>
+            </div>
+            <div class="col-md-4">
+                <strong class="stylish-font">Volume:</strong> ${{ coin.total_volume|floatformat:2 }}<br>
+                <strong class="stylish-font">Circulating Supply:</strong> {{ coin.circulating_supply|floatformat:2 }}<br>
+                <strong class="stylish-font">ATL:</strong> ${{ coin.atl|floatformat:2 }}<br>
+            </div>
+            <div class="col-md-4">
+                <strong class="stylish-font">Total Supply:</strong> {{ coin.total_supply }}<br>
+            </div>
+        </div>
         <a class="btn btn-primary mt-2" href="{% url 'cryptoapp:coin_list' %}">Back to Coin List</a>
     </div>
+
+    <style>
+        .stylish-font {
+            font-family: 'Comic Sans MS', sans-serif; /* Replace with the actual stylish font */
+            /* Add any other styling properties you want */
+        }
+    </style>
 
     <script>
         // JavaScript code for creating the chart
@@ -52,6 +63,4 @@
             }
         });
     </script>
-</body>
-</html>
 {% endblock %}

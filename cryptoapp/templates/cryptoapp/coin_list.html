@@ -23,12 +23,15 @@
             font-size: 1.2em; /* Adjust the size as needed */
             line-height: 0;
         }
+        .pagination {
+            margin-top: 20px;
+        }
     </style>
 
     <h1 class="h3 mb-3">Coin List</h1>
     <div class="table-responsive">
         <table class="table">
-            <thead class ="thead-light">
+            <thead class="thead-light">
                 <tr>
                     <th class="w-25">Name</th>
                     <th class="w-15">Symbol</th>
@@ -40,22 +43,82 @@
             </thead>
             <tbody>
                 {% for coin in coins %}
-                <tr class="py-4" >
-                    <td class="w-25"><a href="{% url 'cryptoapp:coin_details' coin.id %}">{{ coin.name }}</a></td>
-                    <td class="w-15"><a href="{% url 'cryptoapp:coin_details' coin.id %}">{{ coin.symbol }}</a></td>
-                    <td class="w-15 {% if coin.price_change_percentage_24h < 0 %}negative-change{% else %}positive-change{% endif %}">
-                        <span class="{% if coin.price_change_percentage_24h < 0 %}negative-change{% else %}positive-change{% endif %}">
-                            {% if coin.price_change_percentage_24h < 0 %}&#9660;{% else %}&#9650;{% endif %}
-                            {{ coin.price_change_percentage_24h }}%
-                        </span>
-                    </td>
-                    <td class="w-15">${{ coin.market_cap|floatformat:2 }}</td>
-                    <td class="w-15">${{ coin.total_volume|floatformat:2 }}</td>
-                    <td class="w-20">{{ coin.circulating_supply|floatformat:2 }}</td>
-                </tr>
+                    <tr class="py-4">
+                        <td class="w-25"><span class="link-style" onclick="location.href='{% url 'cryptoapp:coin_details' coin.id %}'">{{ coin.name }}</span></td>
+                        <td class="w-15"><span class="link-style" onclick="location.href='{% url 'cryptoapp:coin_details' coin.id %}'">{{ coin.symbol }}</span></td>
+                        <td class="w-15 {% if coin.price_change_percentage_24h < 0 %}negative-change{% else %}positive-change{% endif %}">
+                            <span class="{% if coin.price_change_percentage_24h < 0 %}negative-change{% else %}positive-change{% endif %}">
+                                {% if coin.price_change_percentage_24h < 0 %}&#9660;{% else %}&#9650;{% endif %}
+                                {{ coin.price_change_percentage_24h }}%
+                            </span>
+                        </td>
+                        <td class="w-15">${{ coin.market_cap|floatformat:2 }}</td>
+                        <td class="w-15">${{ coin.total_volume|floatformat:2 }}</td>
+                        <td class="w-20">{{ coin.circulating_supply|floatformat:2 }}</td>
+                    </tr>
                 {% endfor %}
             </tbody>
         </table>
     </div>
+
+<nav aria-label="Page navigation" class="d-flex justify-content-center">
+    <ul class="pagination nav nav-tabs">
+        {% if coins.has_previous %}
+            <li class="page-item nav-item">
+                <a class="page-link nav-link" href="?page=1" aria-label="First">
+                    <span aria-hidden="true">&laquo;&laquo;</span>
+                </a>
+            </li>
+            <li class="page-item nav-item">
+                <a class="page-link nav-link" href="?page={{ coins.previous_page_number }}" aria-label="Previous">
+                    <span aria-hidden="true">&laquo;</span>
+                </a>
+            </li>
+        {% endif %}
+
+        {% for page_num in coins.paginator.page_range %}
+            <li class="page-item nav-item {% if page_num == coins.number %}active{% endif %}">
+                <a class="page-link nav-link" href="?page={{ page_num }}">{{ page_num }}</a>
+            </li>
+        {% endfor %}
+
+        {% if coins.has_next %}
+            <li class="page-item nav-item">
+                <a class="page-link nav-link" href="?page={{ coins.next_page_number }}" aria-label="Next">
+                    <span aria-hidden="true">&raquo;</span>
+                </a>
+            </li>
+            <li class="page-item nav-item">
+                <a class="page-link nav-link" href="?page={{ coins.paginator.num_pages }}" aria-label="Last">
+                    <span aria-hidden="true">&raquo;&raquo;</span>
+                </a>
+            </li>
+        {% endif %}
+    </ul>
+</nav>
+
+<style>
+    .pagination {
+        margin-top: 20px;
+    }
+
+    .pagination .page-item.disabled .page-link,
+    .pagination .page-item.disabled .page-link:hover {
+        cursor: not-allowed; /* Disable cursor for disabled links */
+    }
+
+    .pagination .page-item:not(.disabled) .page-link:hover {
+        background-color: #f8f9fa; /* Background color on hover */
+        border-color: #dee2e6; /* Border color on hover */
+    }
+
+    .pagination .page-item.active .page-link {
+        background-color: #007bff; /* Background color for active link */
+        border-color: #007bff; /* Border color for active link */
+        color: #fff; /* Text color for active link */
+    }
 </style>
+
+
+
 {% endblock %}

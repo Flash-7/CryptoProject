@@ -4,6 +4,7 @@ from .models import Coin
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.models import User, Group
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 
 @login_required(login_url="/login")
@@ -25,11 +26,46 @@ def sign_up(request):
 
 
 def coin_list(request):
-    coins = Coin.objects.all().order_by(
-        '-market_cap')[:10]
+    # Assuming coins is your queryset
+    coins_list = Coin.objects.all().order_by('-market_cap')
+
+    # Set the number of items per page
+    items_per_page = 10
+
+    paginator = Paginator(coins_list, items_per_page)
+    page = request.GET.get('page')
+
+    try:
+        coins = paginator.page(page)
+    except PageNotAnInteger:
+        # If page is not an integer, deliver first page.
+        coins = paginator.page(1)
+    except EmptyPage:
+        # If page is out of range (e.g., 9999), deliver last page.
+        coins = paginator.page(paginator.num_pages)
+
     return render(request, 'cryptoapp/coin_list.html', {'coins': coins})
 
 
 def coin_details(request, id):
     coin = get_object_or_404(Coin, pk=id)
     return render(request, 'cryptoapp/coin_details.html', {'coin': coin})
+
+
+def highlight_view(request):
+    # Top 10 gainers
+    top_gainers = Coin.objects.order_by('-price_change_percentage_24h')[:10]
+
+    # Top 10 losers
+    top_losers = Coin.objects.order_by('price_change_percentage_24h')[:10]
+
+    # Volume buzzers with highest volume
+    volume_buzzers = Coin.objects.order_by('-total_volume')[:10]
+
+    context = {
+        'top_gainers': top_gainers,
+        'top_losers': top_losers,
+        'volume_buzzers': volume_buzzers,
+    }
+
+    return render(request, 'cryptoapp/highlight.html', context)

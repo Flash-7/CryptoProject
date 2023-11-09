@@ -29,5 +29,6 @@ urlpatterns = [
 
     path('coins/', views.coin_list, name='coin_list'),
     path('coin/<int:id>/', views.coin_details, name='coin_details'),
+    path('highlight/', views.highlight_view, name='highlight_view'),
 
 ]
