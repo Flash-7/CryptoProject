@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Welcome to CryptoApp</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        .image-container {
+            position: relative;
+        }
+
+        img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .get-started-button {
+            position: absolute;
+            top: 54%;
+            left: 14%;
+            transform: translateX(-50%);
+            background-color: silver;
+            color: black;
+            padding: 15px 30px;
+            font-size: 20px;
+            text-decoration: none;
+            border: none;
+            cursor: pointer;
+            border-radius: 30px;
+            display: inline-block; /* Ensure the button and link appear on the same line */
+            text-align: center;
+        }
+
+        .login-link {
+            position: absolute;
+            top: 60%;
+            left: 14%;
+            transform: translateX(-50%);
+            color: white;
+            font-size: large;
+        }
+    </style>
+</head>
+<body>
+    <div class="image-container">
+        {% load static %}
+        <!-- Your banner image goes here -->
+        <img src="{% static 'cryptoapp/1.jpg' %}" alt="Banner Image">
+
+        <!-- "Get Started" button redirects to the sign-up page -->
+        <a href="{% url 'cryptoapp:sign_up' %}" class="get-started-button">Get Started</a>
+
+        <!-- Link to login below the "Get Started" button -->
+        <p class="login-link">Have an account? Login <a href="{% url 'login' %}" style="color: lightgreen">Here!</a></p>
+    </div>
+</body>
+</html>

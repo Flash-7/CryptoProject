@@ -1,0 +1,141 @@
+<!-- cryptoapp/templates/cryptoapp/highlight.html -->
+{% extends "cryptoapp/base_logged_in.html" %}
+
+{% block title %}Highlight View - CryptoApp{% endblock %}
+
+{% block style %}
+    <style>
+        .carousel-control-prev-icon {
+ background-image: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%23000' viewBox='0 0 8 8'%3E%3Cpath d='M5.25 0l-4 4 4 4 1.5-1.5-2.5-2.5 2.5-2.5-1.5-1.5z'/%3E%3C/svg%3E") !important;
+}
+
+        .carousel-control-next-icon {
+          background-image: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%23000' viewBox='0 0 8 8'%3E%3Cpath d='M2.75 0l-1.5 1.5 2.5 2.5-2.5 2.5 1.5 1.5 4-4-4-4z'/%3E%3C/svg%3E") !important;
+        }
+
+        .carousel-indicators [data-bs-target] {
+            width: 10px;
+            height: 10px;
+            border-radius: 100%;
+            background-color: black;
+        }
+
+        .carousel-indicators {
+            bottom: -50px;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <div class="container mt-5">
+        <div id="highlightCarousel" class="carousel slide" data-bs-ride="carousel">
+            <div class="carousel-indicators">
+                <button type="button" data-bs-target="#highglightCarousel" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
+                <button type="button" data-bs-target="#highglightCarousel" data-bs-slide-to="1" aria-label="Slide 2"></button>
+                <button type="button" data-bs-target="#highglightCarousel" data-bs-slide-to="2" aria-label="Slide 3"></button>
+            </div>
+            <div class="carousel-inner">
+                <div class="carousel-item active">
+                    <div class="row justify-content-center">
+                        <div class="col-md-8">
+                            <h1 class="h3 mb-3">Price Gainers</h1>
+                            <table class="table table-lg table-hover">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th scope="col" style="width: 40%;">Coin Name</th>
+                                        <th scope="col" style="width: 30%;">Symbol</th>
+                                        <th scope="col" style="width: 30%;">Price Change (24h)</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for coin in top_gainers %}
+                                        <tr>
+                                            <td class="w-25"><span class="link-style" onclick="location.href='{% url 'cryptoapp:coin_details' coin.id %}'">{{ coin.name }}</span></td>
+                                            <td class="w-15"><span class="link-style" onclick="location.href='{% url 'cryptoapp:coin_details' coin.id %}'">{{ coin.symbol }}</span></td>
+                                            <td>
+                                                <span class="text-success">&#9650;</span>
+                                                {{ coin.price_change_percentage_24h }}%
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                    <div class="carousel-item">
+                        <div class="row justify-content-center">
+                            <div class="col-md-8">
+                                <h1 class="h3 mb-3">Price Losers</h1>
+                                <table class="table table-lg table-hover">
+                                    <thead class="table-dark">
+                                        <tr>
+                                            <th scope="col" style="width: 40%;">Coin Name</th>
+                                            <th scope="col" style="width: 30%;">Symbol</th>
+                                            <th scope="col" style="width: 30%;">Price Change (24h)</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for coin in top_losers %}
+                                            <tr>
+                                                <td class="w-25"><span class="link-style" onclick="location.href='{% url 'cryptoapp:coin_details' coin.id %}'">{{ coin.name }}</span></td>
+                                                <td class="w-15"><span class="link-style" onclick="location.href='{% url 'cryptoapp:coin_details' coin.id %}'">{{ coin.symbol }}</span></td>
+                                                <td>
+                                                    <span class="text-danger">&#9660;</span>
+                                                    {{ coin.price_change_percentage_24h }}%
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="carousel-item">
+                        <div class="row justify-content-center">
+                            <div class="col-md-8">
+                                <h1 class="h3 mb-3">Volume Buzzers</h1>
+                                <table class="table table-lg table-hover">
+                                    <thead class="table-dark">
+                                        <tr>
+                                            <th scope="col" style="width: 40%;">Coin Name</th>
+                                            <th scope="col" style="width: 30%;">Symbol</th>
+                                            <th scope="col" style="width: 30%;">Volume</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for coin in volume_buzzers %}
+                                            <tr>
+                                                <td class="w-25"><span class="link-style" onclick="location.href='{% url 'cryptoapp:coin_details' coin.id %}'">{{ coin.name }}</span></td>
+                                                <td class="w-15"><span class="link-style" onclick="location.href='{% url 'cryptoapp:coin_details' coin.id %}'">{{ coin.symbol }}</span></td>
+                                                <td>${{ coin.total_volume|floatformat:2 }}</td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="carousel-control-prev" type="button" data-bs-target="#highlightCarousel" data-bs-slide="prev">
+                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Previous</span>
+                </button>
+                <button class="carousel-control-next" type="button" data-bs-target="#highlightCarousel" data-bs-slide="next">
+                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Next</span>
+                </button>
+            </div>
+    </div>
+
+    <script>
+        // JavaScript code for automatic sliding
+        var myCarousel = new bootstrap.Carousel(document.getElementById('highlightCarousel'), {
+            interval: 3000, // 3 seconds
+            pause: 'hover',
+        });
+    </script>
+{% endblock %}
