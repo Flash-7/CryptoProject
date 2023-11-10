@@ -1,9 +1,9 @@
-{% extends "cryptoapp/base.html" %}
+{% extends "cryptoapp/base_logged_in.html" %}
 
 {% block title %}Coin Details - CryptoApp{% endblock %}
 
 {% block content %}
-    <div class="container">
+    <div class="container mt-4">
         <div class="row mt-2"></div>
         <div class="row">
             <div class="col-md-12">
@@ -12,22 +12,41 @@
         </div>
         <div class="row mt-4"></div>
         <div class="row">
-            <div class="col-md-4">
-                <strong class="stylish-font">Name:</strong> {{ coin.name }}<br>
-                <strong class="stylish-font">24h Percentage:</strong> {{ coin.price_change_percentage_24h }}%<br>
-                <strong class="stylish-font">Market Cap:</strong> ${{ coin.market_cap|floatformat:2 }}<br>
-                <strong class="stylish-font">ATH:</strong> ${{ coin.ath|floatformat:2 }}<br>
+            <div class="row">
+                <div class="col-md-3">
+                    <strong class="stylish-font h3">{{ coin.name }}</strong> <strong class="text-uppercase stylish-font h3">({{ coin.symbol }})</strong>
+                </div>
             </div>
-            <div class="col-md-4">
-                <strong class="stylish-font">Volume:</strong> ${{ coin.total_volume|floatformat:2 }}<br>
-                <strong class="stylish-font">Circulating Supply:</strong> {{ coin.circulating_supply|floatformat:2 }}<br>
-                <strong class="stylish-font">ATL:</strong> ${{ coin.atl|floatformat:2 }}<br>
+            <div class="row justify-content-between mt-4">
+                <div class="col-md-2">
+                    <strong class="text-muted stylish-font fs-5">Market Cap<br></strong> ${{ coin.market_cap|floatformat:2 }}<br>
+                </div>
+                <div class="col-md-2">
+                    <strong class="text-muted stylish-font fs-5">Volume<br></strong> ${{ coin.total_volume|floatformat:2 }}<br>
+                </div>
+                <div class="col-md-2">
+                    <strong class="text-muted stylish-font fs-5">Circulating Supply<br></strong> {{ coin.circulating_supply|floatformat:2 }}<br>
+                </div>
             </div>
-            <div class="col-md-4">
-                <strong class="stylish-font">Total Supply:</strong> {{ coin.total_supply }}<br>
+            <div class="row justify-content-between mt-4">
+                <div class="col-md-2">
+                    <strong class="text-muted stylish-font fs-5">24h Percentage<br></strong>
+                    {% if coin.price_change_percentage_24h < 0 %}
+                        <span style="color: red;">{{ coin.price_change_percentage_24h }}% &#x25bc;</span>
+                    {% else %}
+                        <span style="color: green;">{{ coin.price_change_percentage_24h }}% &#x25b2;</span>
+                    {% endif %}
+                    <br>
+                </div>
+                <div class="col-md-2">
+                    <strong class="text-muted stylish-font fs-5">ATL<br></strong> ${{ coin.atl|floatformat:2 }}<br>
+                </div>
+                <div class="col-md-2">
+                    <strong class="text-muted stylish-font fs-5">ATH<br></strong> ${{ coin.ath|floatformat:2 }}<br>
+                </div>
             </div>
         </div>
-        <a class="btn btn-primary mt-2" href="{% url 'cryptoapp:coin_list' %}">Back to Coin List</a>
+        <a class="btn btn-primary mt-3" href="{% url 'cryptoapp:coin_list' %}">Back to Coin List</a>
     </div>
 
     <style>

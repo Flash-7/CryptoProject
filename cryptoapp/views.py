@@ -7,9 +7,14 @@ from django.contrib.auth.models import User, Group
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 
-@login_required(login_url="/login")
+
 def home(request):
-    return render(request, 'cryptoapp/home.html')
+    if request.user.is_authenticated:
+        # User is logged in, render a different template
+        return redirect('cryptoapp:coin_list')
+    else:
+        # User is not logged in, render the default home template
+        return render(request, 'cryptoapp/index.html')
 
 
 def sign_up(request):

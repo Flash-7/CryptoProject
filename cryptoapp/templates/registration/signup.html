@@ -1,9 +1,28 @@
 {% extends 'cryptoapp/base.html' %}
 {% load crispy_forms_filters %} {% block title %}Sign Up{% endblock %}
-{% load crispy_forms_tags %} {% block content %}
-<form method="post">
-  {% csrf_token %}{{form|crispy}}
-  <p>Have an account? Login <a href="{% url 'login' %}">Here</a>!</p>
-  <button type="submit" class="btn btn-success">Register</button>
-</form>
+{% load crispy_forms_tags %}
+
+{% block style %}
+    <style>
+        body {
+            background-color: lightcyan;
+        }
+        .row {
+            margin: 2% 26%;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <div class="row">
+        <div class="col align-self-center">
+            <div class="shadow p-4 mb-5 bg-white rounded">
+                <form method="post">
+                  {% csrf_token %}{{form|crispy}}
+                  <p>Have an account? Login <a href="{% url 'login' %}">Here</a>!</p>
+                  <button type="submit" class="btn btn-success">Register</button>
+                </form>
+            </div>
+        </div>
+    </div>
 {% endblock %}

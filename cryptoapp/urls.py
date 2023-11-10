@@ -1,9 +1,10 @@
 from django.urls import path
 from django.contrib.auth import views as auth_views
+from django.contrib.auth.decorators import login_required
 from . import views
 app_name = "cryptoapp"
 urlpatterns = [
-    path('', views.home, name='home'),
+    path('', views.home, name='index'),
     path('home', views.home, name='home'),
     path('sign-up', views.sign_up, name='sign_up'),
     path('password-reset/',
@@ -27,8 +28,8 @@ urlpatterns = [
          ),
          name='password_reset_complete'),
 
-    path('coins/', views.coin_list, name='coin_list'),
-    path('coin/<int:id>/', views.coin_details, name='coin_details'),
-    path('highlight/', views.highlight_view, name='highlight_view'),
+    path('coins/', login_required(views.coin_list, login_url='login'), name='coin_list'),
+    path('coin/<int:id>/', login_required(views.coin_details, login_url='login'), name='coin_details'),
+    path('highlight/', login_required(views.highlight_view, login_url='login'), name='highlight_view'),
 
 ]
