@@ -4,6 +4,13 @@
 
 {% block content %}
     <div class="container mt-4">
+        <!-- Add Buy and Sell buttons in the top-right corner -->
+        <div class="row mt-2">
+            <div class="col-md-12 text-end">
+                <button class="btn btn-success" onclick="openTransactionForm('buy', '{{ coin.id }}')">Buy</button>
+                <button class="btn btn-danger" onclick="openTransactionForm('sell', '{{ coin.id }}')">Sell</button>
+            </div>
+        </div>
         <div class="row mt-2"></div>
         <div class="row">
             <div class="col-md-12">
@@ -14,7 +21,8 @@
         <div class="row">
             <div class="row">
                 <div class="col-md-3">
-                    <strong class="stylish-font h3">{{ coin.name }}</strong> <strong class="text-uppercase stylish-font h3">({{ coin.symbol }})</strong>
+                    <strong class="stylish-font h3">{{ coin.name }}</strong>
+                    <strong class="text-uppercase stylish-font h3">({{ coin.symbol }})</strong>
                 </div>
             </div>
             <div class="row justify-content-between mt-4">
@@ -46,6 +54,7 @@
                 </div>
             </div>
         </div>
+
         <a class="btn btn-primary mt-3" href="{% url 'cryptoapp:coin_list' %}">Back to Coin List</a>
     </div>
 
@@ -57,14 +66,36 @@
     </style>
 
     <script>
-        // JavaScript code for creating the chart
+          function openTransactionForm(action, coinId) {
+                // Create a form element
+                var form = document.createElement('form');
+                form.method = 'post';
+
+                // Set the URL based on the action
+                var url = action === 'buy' ? '{% url "cryptoapp:buy_coin" coin_id=0 %}' : '{% url "cryptoapp:sell_coin" coin_id=0 %}';
+                url = url.replace('0', coinId);
+                form.action = url;
+
+                // Add CSRF token input
+                var csrfInput = document.createElement('input');
+                csrfInput.type = 'hidden';
+                csrfInput.name = 'csrfmiddlewaretoken';
+                csrfInput.value = '{{ csrf_token }}';  // Django template variable for CSRF token
+                form.appendChild(csrfInput);
+
+                // Append the form to the body and submit it
+                document.body.appendChild(form);
+                form.submit();
+            }
+
+
         var ctx = document.getElementById('priceChart').getContext('2d');
         var priceData = {
-            labels: ['Time1', 'Time2', 'Time3', 'Time4', 'Time5'], // Replace with actual time labels
+            labels: ['Time1', 'Time2', 'Time3', 'Time4', 'Time5'],
             datasets: [{
                 label: 'Price',
-                data: [10, 20, 15, 25, 30], // Replace with actual price data
-                borderColor: 'rgba(75, 192, 192, 1)', // Line color
+                data: [10, 20, 15, 25, 30],
+                borderColor: 'rgba(75, 192, 192, 1)',
                 borderWidth: 2,
                 fill: false
             }]

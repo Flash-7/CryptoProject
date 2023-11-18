@@ -1,19 +1,17 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from .forms import RegisterForm
-from .models import Coin
-from django.contrib.auth.decorators import login_required, permission_required
-from django.contrib.auth import login, logout, authenticate
-from django.contrib.auth.models import User, Group
+from .forms import RegisterForm, TransactionForm, AddBalanceForm
+from .models import Coin, Transaction, UserProfile
+from django.contrib.auth import login
+from django.http import JsonResponse
+
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 
 
 def home(request):
     if request.user.is_authenticated:
-        # User is logged in, render a different template
         return redirect('cryptoapp:coin_list')
     else:
-        # User is not logged in, render the default home template
         return render(request, 'cryptoapp/index.html')
 
 
@@ -74,3 +72,139 @@ def highlight_view(request):
     }
 
     return render(request, 'cryptoapp/highlight.html', context)
+
+def buy_coin(request, coin_id):
+    coin = get_object_or_404(Coin, id=coin_id)
+    user = request.user
+    user_profile = UserProfile.objects.get(user=user)
+
+    if request.method == 'POST':
+        form = TransactionForm(request.POST)
+        if form.is_valid():
+            quantity = form.cleaned_data['quantity']
+            amount = form.cleaned_data['amount']
+
+            if quantity:
+                amount = coin.current_price * quantity
+
+            if amount <= user_profile.balance:
+                transaction = Transaction.objects.create(
+                    user=user,
+                    coin=coin,
+                    amount=amount,
+                    quantity=quantity
+                )
+
+                # Update user balance
+                user_profile.balance -= amount
+                user_profile.save()
+
+                # Additional logic: Update coin-related information, such as holdings
+                if quantity:
+                    coin.holdings += quantity
+                else:
+                    coin.holdings += amount / coin.current_price
+
+                coin.save()
+
+                return redirect('cryptoapp:highlight_view')  # Redirect to the highlight view or any desired page
+            else:
+                # Insufficient balance
+                form.add_error('amount', 'Insufficient balance for the purchase.')
+    else:
+        form = TransactionForm()
+
+    return render(request, 'cryptoapp/buy_sell_form.html', {'form': form, 'action': 'buy', 'coin': coin})
+
+
+def sell_coin(request, coin_id):
+    coin = get_object_or_404(Coin, id=coin_id)
+    user = request.user
+    user_profile = UserProfile.objects.get_or_create(user=user)
+
+    if request.method == 'POST':
+        form = TransactionForm(request.POST)
+        if form.is_valid():
+            quantity = form.cleaned_data['quantity']
+            amount = form.cleaned_data['amount']
+
+            if quantity and quantity <= coin.holdings:
+                amount = coin.current_price * quantity
+
+                transaction = Transaction.objects.create(
+                    user=user,
+                    coin=coin,
+                    amount=amount,
+                    quantity=quantity
+                )
+
+                # Update user balance
+                user_profile.balance += amount
+                user_profile.save()
+
+                # Additional logic: Update coin-related information, such as holdings
+                coin.holdings -= quantity
+                coin.save()
+
+                return redirect('cryptoapp:highlight_view')  # Redirect to the highlight view or any desired page
+            elif amount and amount <= coin.holdings * coin.current_price:
+                transaction = Transaction.objects.create(
+                    user=user,
+                    coin=coin,
+                    amount=amount
+                )
+
+                # Update user balance
+                user_profile.balance += amount
+                user_profile.save()
+
+                # Additional logic: Update coin-related information, such as holdings
+                coin.holdings -= amount / coin.current_price
+                coin.save()
+
+                return redirect('cryptoapp:highlight_view')  # Redirect to the highlight view or any desired page
+            else:
+                # Insufficient quantity or amount
+                form.add_error('quantity', 'Insufficient quantity or amount for the sale.')
+    else:
+        form = TransactionForm()
+
+    return render(request, 'cryptoapp/buy_sell_form.html', {'form': form, 'action': 'sell', 'coin': coin})
+
+def portfolio(request):
+    context = {}
+    user = request.user
+    buy_transactions = Transaction.objects.filter(user=user, coin__holdings__gt=0).order_by('coin__name')
+    total_balance = sum(transaction.amount for transaction in buy_transactions)
+    user_profile = UserProfile.objects.get(user=user)
+
+    add_balance_form = AddBalanceForm()
+    if request.method == 'POST':
+        add_balance_form = AddBalanceForm(request.POST)
+        if add_balance_form.is_valid():
+            amount = add_balance_form.cleaned_data['amount']
+
+            # Update user's balance in UserProfile
+            user_profile = UserProfile.objects.get(user=user)
+            user_profile.balance += amount
+            user_profile.save()
+
+            # Redirect back to the portfolio page
+            return redirect('cryptoapp:portfolio')
+
+    return render(request, 'cryptoapp/portfolio.html', {'buy_transactions': buy_transactions, 'total_balance': total_balance, 'add_balance_form': add_balance_form,'user_profile': user_profile})
+
+def toggle_watchlist(request):
+    if request.method == 'POST' and request.headers.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest':
+        # Your existing code for handling the AJAX request goes here
+        data = request.POST  # Assuming you are sending data using POST method
+        coin_id = data.get('coinId')
+        coin_name = data.get('coinName')
+        is_in_watchlist = data.get('isInWatchlist')
+
+        # Perform your logic here
+
+        return JsonResponse({'success': True})
+    else:
+        # Handle non-AJAX request (e.g., return a 404 or a redirect)
+        return JsonResponse({'error': 'Invalid request'}, status=400)

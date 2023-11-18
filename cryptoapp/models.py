@@ -1,4 +1,5 @@
 from django.db import models
+from django import forms
 
 # Create your models here.
 from django.contrib.auth.models import User
@@ -28,6 +29,20 @@ class Coin(models.Model):
     atl_change_percentage = models.FloatField()
     atl_date = models.DateField()
     price_change_percentage_24h_in_currency = models.FloatField()
+    holdings = models.DecimalField(max_digits=20, decimal_places=2, default=0)
 
     def __str__(self):
         return self.name
+
+
+class Transaction(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    coin = models.ForeignKey(Coin, on_delete=models.CASCADE)  # Assume you have a Coin model
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    quantity = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+
+class UserProfile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    balance = models.DecimalField(max_digits=10, decimal_places=2, default=0)
