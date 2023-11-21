@@ -7,7 +7,6 @@ from django.http import JsonResponse
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 
-
 def home(request):
     if request.user.is_authenticated:
         return redirect('cryptoapp:coin_list')
@@ -72,6 +71,7 @@ def highlight_view(request):
     }
 
     return render(request, 'cryptoapp/highlight.html', context)
+
 
 def buy_coin(request, coin_id):
     coin = get_object_or_404(Coin, id=coin_id)
@@ -171,6 +171,7 @@ def sell_coin(request, coin_id):
 
     return render(request, 'cryptoapp/buy_sell_form.html', {'form': form, 'action': 'sell', 'coin': coin})
 
+
 def portfolio(request):
     context = {}
     user = request.user
@@ -192,19 +193,25 @@ def portfolio(request):
             # Redirect back to the portfolio page
             return redirect('cryptoapp:portfolio')
 
-    return render(request, 'cryptoapp/portfolio.html', {'buy_transactions': buy_transactions, 'total_balance': total_balance, 'add_balance_form': add_balance_form,'user_profile': user_profile})
+    return render(request, 'cryptoapp/portfolio.html',
+                  {'buy_transactions': buy_transactions, 'total_balance': total_balance,
+                   'add_balance_form': add_balance_form, 'user_profile': user_profile})
 
-def toggle_watchlist(request):
-    if request.method == 'POST' and request.headers.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest':
-        # Your existing code for handling the AJAX request goes here
-        data = request.POST  # Assuming you are sending data using POST method
-        coin_id = data.get('coinId')
-        coin_name = data.get('coinName')
-        is_in_watchlist = data.get('isInWatchlist')
 
-        # Perform your logic here
+def toggle_watchlist(request, coin_id):
+    coin = get_object_or_404(Coin, id=coin_id)
+    user_profile = request.user.userprofile
 
-        return JsonResponse({'success': True})
+    if coin in user_profile.watchlist.all():
+        user_profile.watchlist.remove(coin)
+        in_watchlist = False
     else:
-        # Handle non-AJAX request (e.g., return a 404 or a redirect)
-        return JsonResponse({'error': 'Invalid request'}, status=400)
+        user_profile.watchlist.add(coin)
+        in_watchlist = True
+
+    return JsonResponse({'in_watchlist': in_watchlist})
+
+def watchlist(request):
+    user = request.user
+    watchlist_coins = user.userprofile.watchlist.all()
+    return render(request, 'cryptoapp/watchlist.html', {'watchlist_coins': watchlist_coins})
