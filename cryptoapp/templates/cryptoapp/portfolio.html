@@ -7,7 +7,7 @@
 {% block content %}
     <div class="container mt-4">
         <h1 class="mb-3">Portfolio</h1>
-        {% if buy_transactions %}
+        {% if assets %}
             <table class="table">
                 <thead>
                     <tr>
@@ -15,35 +15,34 @@
                         <th scope="col">Coin</th>
                         <th scope="col">Quantity</th>
                         <th scope="col">Amount</th>
-                        <th scope="col">Timestamp</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {% for transaction in buy_transactions %}
+                    {% for asset in assets %}
                         <tr>
                             <th scope="row">{{ forloop.counter }}</th>
-                            <td>{{ transaction.coin.name }}</td>
-                            <td>{{ transaction.quantity }}</td>
-                            <td>${{ transaction.amount|floatformat:2 }}</td>
-                            <td>{{ transaction.timestamp }}</td>
+                            <td><span class="link-style" onclick="location.href='{% url 'cryptoapp:coin_details' asset.coin.id %}'">{{ asset.coin.name }}</span></td>
+                            <td>{{ asset.quantity }}</td>
+                            <td>${{ asset.amount|floatformat:2 }}</td>
                         </tr>
                     {% endfor %}
                 </tbody>
             </table>
 
-            <p>Total Portfolio Balance: ${{ total_balance|floatformat:2 }}</p>
-            <p>Current Balance: ${{ user_profile.balance|floatformat:2 }}</p>
+            <!-- <p>Total Portfolio Balance: ${{ total_balance|floatformat:2 }}</p> -->
+            
 
             <!-- Add Balance Form -->
+            <p>Current Balance: ${{ user_profile.balance|floatformat:2 }}</p>
             <form method="post" class="mt-4">
                 {% csrf_token %}
                 {{ add_balance_form.as_p }}
                 <button type="submit" class="btn btn-primary">Add Balance</button>
             </form>
+            
         {% else %}
-            <p>No transactions found in your portfolio.</p>
+            <p>You do not have any coins in your portfolio.</p>
             <p>Current Balance: ${{ user_profile.balance|floatformat:2 }}</p>
-
             <!-- Add Balance Form -->
             <form method="post" class="mt-4">
                 {% csrf_token %}

@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from .forms import RegisterForm, TransactionForm, AddBalanceForm
-from .models import Coin, Transaction, UserProfile
+from .models import Coin, Transaction, UserProfile, Portfolio
 from django.contrib.auth import login
 from django.http import JsonResponse
 import decimal
@@ -92,6 +92,8 @@ def buy_coin(request, coin_id):
 
             if quantity:
                 amount = coin.current_price * quantity
+            elif amount:
+                quantity = amount / (decimal.Decimal(coin.current_price))
 
             if amount <= user_profile.balance:
                 transaction = Transaction.objects.create(
@@ -106,16 +108,20 @@ def buy_coin(request, coin_id):
                 user_profile.balance -= amount
                 user_profile.save()
 
-                # Additional logic: Update coin-related information, such as holdings
-                # if quantity:
-                #     coin.holdings += quantity
-                # else:
-                #     print(type(amount), type(coin.current_price))
-                #     coin.holdings += amount / (decimal.Decimal(coin.current_price))
+                try:
+                    user_portfolio = Portfolio.objects.get(user_profile=user_profile, coin=coin)
+                    user_portfolio.amount += float(amount)
+                    user_portfolio.quantity += float(quantity)
+                    user_portfolio.save()
+                except:
+                    Portfolio.objects.create(
+                        user_profile=user_profile,
+                        coin=coin,
+                        amount=amount,
+                        quantity=quantity,
+                    )
 
-                coin.save()
-
-                return redirect('cryptoapp:highlight_view')  # Redirect to the highlight view or any desired page
+                return redirect('cryptoapp:coin_list')  # Redirect to the highlight view or any desired page
             else:
                 # Insufficient balance
                 form.add_error('amount', 'Insufficient balance for the purchase.')
@@ -136,28 +142,15 @@ def sell_coin(request, coin_id):
             quantity = form.cleaned_data['quantity']
             amount = form.cleaned_data['amount']
 
-            if quantity and quantity <= coin.holdings:
+            if quantity:
                 amount = coin.current_price * quantity
 
-                transaction = Transaction.objects.create(
-                    user=user,
-                    coin=coin,
-                    amount=amount,
-                    quantity=quantity,
-                    transaction_type='Sell'
-                )
-
-                # Update user balance
-                user_profile.balance += amount
-                user_profile.save()
-
-                # Additional logic: Update coin-related information, such as holdings
-                # coin.holdings -= quantity
-                # coin.save()
-
-                return redirect('cryptoapp:highlight_view')  # Redirect to the highlight view or any desired page
-            elif amount and amount <= coin.holdings * (decimal.Decimal(coin.current_price)):
+            elif amount:
                 quantity = amount / (decimal.Decimal(coin.current_price))
+
+            user_portfolio = Portfolio.objects.get(user_profile=user_profile, coin=coin)
+
+            if amount <= user_portfolio.amount:
                 transaction = Transaction.objects.create(
                     user=user,
                     coin=coin,
@@ -170,9 +163,18 @@ def sell_coin(request, coin_id):
                 user_profile.balance += amount
                 user_profile.save()
 
-                # Additional logic: Update coin-related information, such as holdings
-                # coin.holdings -= amount / (decimal.Decimal(coin.current_price))
-                # coin.save()
+                try:
+                    user_portfolio = Portfolio.objects.get(user_profile=user_profile, coin=coin)
+                    user_portfolio.amount -= float(amount)
+                    user_portfolio.quantity -= float(quantity)
+                    user_portfolio.save()
+                except:
+                    Portfolio.objects.create(
+                        user_profile=user_profile,
+                        coin=coin,
+                        amount=amount,
+                        quantity=quantity,
+                    )
 
                 return redirect('cryptoapp:highlight_view')  # Redirect to the highlight view or any desired page
             else:
@@ -187,9 +189,13 @@ def sell_coin(request, coin_id):
 def portfolio(request):
     context = {}
     user = request.user
-    buy_transactions = Transaction.objects.filter(user=user, coin__holdings__gt=0).order_by('coin__name')
-    total_balance = sum(transaction.amount for transaction in buy_transactions)
+    # buy_transactions = Transaction.objects.filter(user=user, coin__holdings__gt=0).order_by('coin__name')
+    # total_balance = sum(transaction.amount for transaction in buy_transactions)
     user_profile = UserProfile.objects.get(user=user)
+    user_portfolio = user_profile.portfolio_set.all()
+    
+    for i in user_portfolio:
+        print(i, i.user_profile.user, i.coin, i.quantity, i.amount)
 
     add_balance_form = AddBalanceForm()
     if request.method == 'POST':
@@ -206,24 +212,23 @@ def portfolio(request):
             return redirect('cryptoapp:portfolio')
 
     return render(request, 'cryptoapp/portfolio.html',
-                  {'buy_transactions': buy_transactions, 'total_balance': total_balance,
-                   'add_balance_form': add_balance_form, 'user_profile': user_profile})
+                  {'assets': user_portfolio,'add_balance_form': add_balance_form, 'user_profile': user_profile})
 
 
 def toggle_watchlist(request, coin_id):
     coin = get_object_or_404(Coin, id=coin_id)
     user_profile = request.user.userprofile
 
-    if coin in user_profile.watchlist.all():
-        user_profile.watchlist.remove(coin)
+    if coin in user_profile.coin.all():
+        user_profile.coin.remove(coin)
         in_watchlist = False
     else:
-        user_profile.watchlist.add(coin)
+        user_profile.coin.add(coin)
         in_watchlist = True
 
     return JsonResponse({'in_watchlist': in_watchlist})
 
 def watchlist(request):
     user = request.user
-    watchlist_coins = user.userprofile.watchlist.all()
+    watchlist_coins = user.userprofile.coin.all()
     return render(request, 'cryptoapp/watchlist.html', {'watchlist_coins': watchlist_coins})

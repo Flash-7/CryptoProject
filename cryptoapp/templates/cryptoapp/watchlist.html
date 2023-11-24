@@ -7,25 +7,27 @@
         <h1 class="mb-3">Watchlist</h1>
 
         {% if watchlist_coins %}
-            <table class="table table-lg table-hover">
-            <thead class="thead-dark">
-                    <tr>
-                        <th scope="col">Name</th>
-                        <th scope="col">Symbol</th>
-                        <th scope="col">Current Price</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for coin in watchlist_coins %}
+            <div class="table-responsive">
+                <table class="table table-lg table-hover">
+                <thead class="thead-dark">
                         <tr>
-                            <td class="w-25"><span class="link-style" onclick="location.href='{% url 'cryptoapp:coin_details' coin.id %}'">{{ coin.name }}</span></td>
-                            <td class="w-15"><span class="link-style" onclick="location.href='{% url 'cryptoapp:coin_details' coin.id %}'">{{ coin.symbol }}</span></td>
-                            <td>${{ coin.current_price|floatformat:2 }}</td>
-                            <!-- Add more columns if needed -->
+                            <th class="w-25">Name</th>
+                            <th class="w-15">Symbol</th>
+                            <th>Current Price</th>
                         </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        {% for coin in watchlist_coins %}
+                            <tr>
+                                <td class="w-25"><span class="link-style" onclick="location.href='{% url 'cryptoapp:coin_details' coin.id %}'">{{ coin.name }}</span></td>
+                                <td class="w-15"><span class="link-style" onclick="location.href='{% url 'cryptoapp:coin_details' coin.id %}'">{{ coin.symbol }}</span></td>
+                                <td>${{ coin.current_price|floatformat:2 }}</td>
+                                <!-- Add more columns if needed -->
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         {% else %}
             <p>Your watchlist is empty.</p>
         {% endif %}
