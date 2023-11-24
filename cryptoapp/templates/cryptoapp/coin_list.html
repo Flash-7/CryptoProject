@@ -46,7 +46,7 @@
             <thead class="thead-dark">
                 <tr>
                     <th class="w-5"> </th>
-                    <th class="w-25">Name</th>
+                    <th class="w-20">Name</th>
                     <th class="w-15">Symbol</th>
                     <th class="w-15">Current Price</th>
                     <th class="w-15">24h %</th>
@@ -59,11 +59,12 @@
                 {% for coin in coins %}
                     <tr class="py-4">
                          <td class="w-5">
-                            <a href="{% url 'cryptoapp:toggle_watchlist' coin.id %}" class="watchlist-toggle">
+                            <a href="{% url 'cryptoapp:toggle_watchlist' coin.id %}" class="watchlist-toggle" data-in-watchlist="{{ coin.in_watchlist }}">
                                 <span class="star {% if coin.in_watchlist %}yellow-star{% endif %}">&#9734;</span>
                             </a>
+
                         </td>
-                        <td class="w-25"><span class="link-style" onclick="location.href='{% url 'cryptoapp:coin_details' coin.id %}'">{{ coin.name }}</span></td>
+                        <td class="w-20"><span class="link-style" onclick="location.href='{% url 'cryptoapp:coin_details' coin.id %}'">{{ coin.name }}</span></td>
                         <td class="w-15"><span class="link-style" onclick="location.href='{% url 'cryptoapp:coin_details' coin.id %}'">{{ coin.symbol }}</span></td>
                         <td class="w-15">${{ coin.current_price|floatformat:2 }}</td>
                         <td class="w-15 {% if coin.price_change_percentage_24h < 0 %}negative-change{% else %}positive-change{% endif %}">
@@ -121,6 +122,17 @@ document.addEventListener('DOMContentLoaded', function() {
     const watchlistToggle = document.querySelectorAll('.watchlist-toggle');
 
     watchlistToggle.forEach(function(element) {
+        // Get the initial watchlist status from the data attribute
+        const inWatchlist = element.dataset.inWatchlist === 'true';
+
+        // Check local storage for the watchlist status
+        const localStorageKey = `watchlist_${element.getAttribute('href')}`;
+        const storedInWatchlist = localStorage.getItem(localStorageKey);
+
+        // Set the initial star color based on the watchlist status
+        const star = element.querySelector('.star');
+        star.classList.toggle('yellow-star', inWatchlist || storedInWatchlist === 'true');
+
         element.addEventListener('click', function(event) {
             // Get the URL from the href attribute
             const url = element.getAttribute('href');
@@ -137,8 +149,10 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(response => response.json())
             .then(data => {
                 // Toggle the star color based on the response
-                const star = element.querySelector('.star');
                 star.classList.toggle('yellow-star', data.in_watchlist);
+
+                // Store the watchlist status in local storage
+                localStorage.setItem(localStorageKey, data.in_watchlist);
             });
 
             // Prevent the default behavior of the anchor tag
@@ -147,6 +161,8 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 </script>
+
+
 <style>
     .pagination {
         margin-top: 20px;

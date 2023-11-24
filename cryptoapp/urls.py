@@ -7,8 +7,8 @@ from CryptoProject import settings
 app_name = "cryptoapp"
 urlpatterns = [
     path('', views.home, name='index'),
-    path('home/', views.home, name='home'),
-    path('sign-up/', views.sign_up, name='sign_up'),
+    path('home', views.home, name='home'),
+    path('sign-up', views.sign_up, name='sign_up'),
     path('logout/', auth_views.LogoutView.as_view(next_page=settings.LOGOUT_REDIRECT_URL), name='logout'),
     path('password_reset/',
          auth_views.PasswordResetView.as_view(
@@ -30,7 +30,6 @@ urlpatterns = [
              template_name='registration/password_reset_complete.html'
          ),
          name='password_reset_complete'),
-
     path('coins/', login_required(views.coin_list, login_url='login'), name='coin_list'),
     path('coin/<int:id>/', login_required(views.coin_details, login_url='login'), name='coin_details'),
     path('highlight/', login_required(views.highlight_view, login_url='login'), name='highlight_view'),
