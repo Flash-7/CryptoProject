@@ -1,3 +1,4 @@
+
 {% extends "cryptoapp/base_logged_in.html" %}
 
 {% block title %}Coin Details - CryptoApp{% endblock %}
@@ -87,43 +88,30 @@
                 document.body.appendChild(form);
                 form.submit();
             }
-   fetch('https://api.coingecko.com/api/v3/coins/{{ coin.id }}/market_chart', {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                // You can customize additional parameters for the API request, such as the time range.
-            })
-            .then(response => response.json())
-            .then(data => {
-                // Extract data for the chart
-                const priceData = {
-                    labels: data.prices.map(entry => new Date(entry[0]).toLocaleDateString()),
-                    datasets: [{
-                        label: 'Price',
-                        data: data.prices.map(entry => entry[1]),
-                        borderColor: 'rgba(75, 192, 192, 1)',
-                        borderWidth: 2,
-                        fill: false
-                    }]
-                };
 
-                // Update the chart with the fetched data
-                var ctx = document.getElementById('priceChart').getContext('2d');
-                var priceChart = new Chart(ctx, {
-                    type: 'line',
-                    data: priceData,
-                    options: {
-                        scales: {
-                            y: {
-                                beginAtZero: true
-                            }
-                        }
+
+        var ctx = document.getElementById('priceChart').getContext('2d');
+        var priceData = {
+            labels: ['Time1', 'Time2', 'Time3', 'Time4', 'Time5'],
+            datasets: [{
+                label: 'Price',
+                data: [10, 20, 15, 25, 30],
+                borderColor: 'rgba(75, 192, 192, 1)',
+                borderWidth: 2,
+                fill: false
+            }]
+        };
+
+        var priceChart = new Chart(ctx, {
+            type: 'line',
+            data: priceData,
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
                     }
-                });
-            })
-            .catch(error => {
-                console.error('Error fetching price data:', error);
-            });
+                }
+            }
+        });
     </script>
 {% endblock %}
