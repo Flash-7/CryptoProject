@@ -7,20 +7,19 @@
         <h1 class="mb-3">Watchlist</h1>
 
         {% if watchlist_coins %}
-            <table class="table">
-                <thead>
+            <table class="table table-lg table-hover">
+            <thead class="thead-dark">
                     <tr>
                         <th scope="col">Name</th>
                         <th scope="col">Symbol</th>
                         <th scope="col">Current Price</th>
-                        <!-- Add more columns if needed -->
                     </tr>
                 </thead>
                 <tbody>
                     {% for coin in watchlist_coins %}
                         <tr>
-                            <td>{{ coin.name }}</td>
-                            <td>{{ coin.symbol }}</td>
+                            <td class="w-25"><span class="link-style" onclick="location.href='{% url 'cryptoapp:coin_details' coin.id %}'">{{ coin.name }}</span></td>
+                            <td class="w-15"><span class="link-style" onclick="location.href='{% url 'cryptoapp:coin_details' coin.id %}'">{{ coin.symbol }}</span></td>
                             <td>${{ coin.current_price|floatformat:2 }}</td>
                             <!-- Add more columns if needed -->
                         </tr>
