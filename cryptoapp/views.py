@@ -3,6 +3,7 @@ from .forms import RegisterForm, TransactionForm, AddBalanceForm
 from .models import Coin, Transaction, UserProfile
 from django.contrib.auth import login
 from django.http import JsonResponse
+import decimal
 
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
@@ -14,12 +15,17 @@ def home(request):
         return render(request, 'cryptoapp/index.html')
 
 
+def create_userprofile(request):
+    uprof = UserProfile(user=request.user, balance=0.00)
+    uprof.save()
+
 def sign_up(request):
     if request.method == 'POST':
         form = RegisterForm(request.POST)
         if form.is_valid():
             user = form.save()
             login(request, user)
+            create_userprofile(request)
             return redirect('/home')
     else:
         form = RegisterForm()
@@ -92,7 +98,8 @@ def buy_coin(request, coin_id):
                     user=user,
                     coin=coin,
                     amount=amount,
-                    quantity=quantity
+                    quantity=quantity,
+                    transaction_type='Buy',
                 )
 
                 # Update user balance
@@ -100,10 +107,11 @@ def buy_coin(request, coin_id):
                 user_profile.save()
 
                 # Additional logic: Update coin-related information, such as holdings
-                if quantity:
-                    coin.holdings += quantity
-                else:
-                    coin.holdings += amount / coin.current_price
+                # if quantity:
+                #     coin.holdings += quantity
+                # else:
+                #     print(type(amount), type(coin.current_price))
+                #     coin.holdings += amount / (decimal.Decimal(coin.current_price))
 
                 coin.save()
 
@@ -120,7 +128,7 @@ def buy_coin(request, coin_id):
 def sell_coin(request, coin_id):
     coin = get_object_or_404(Coin, id=coin_id)
     user = request.user
-    user_profile = UserProfile.objects.get_or_create(user=user)
+    user_profile = UserProfile.objects.get(user=user)
 
     if request.method == 'POST':
         form = TransactionForm(request.POST)
@@ -135,7 +143,8 @@ def sell_coin(request, coin_id):
                     user=user,
                     coin=coin,
                     amount=amount,
-                    quantity=quantity
+                    quantity=quantity,
+                    transaction_type='Sell'
                 )
 
                 # Update user balance
@@ -143,15 +152,18 @@ def sell_coin(request, coin_id):
                 user_profile.save()
 
                 # Additional logic: Update coin-related information, such as holdings
-                coin.holdings -= quantity
-                coin.save()
+                # coin.holdings -= quantity
+                # coin.save()
 
                 return redirect('cryptoapp:highlight_view')  # Redirect to the highlight view or any desired page
-            elif amount and amount <= coin.holdings * coin.current_price:
+            elif amount and amount <= coin.holdings * (decimal.Decimal(coin.current_price)):
+                quantity = amount / (decimal.Decimal(coin.current_price))
                 transaction = Transaction.objects.create(
                     user=user,
                     coin=coin,
-                    amount=amount
+                    amount=amount,
+                    quantity=quantity,
+                    transaction_type='Sell',
                 )
 
                 # Update user balance
@@ -159,8 +171,8 @@ def sell_coin(request, coin_id):
                 user_profile.save()
 
                 # Additional logic: Update coin-related information, such as holdings
-                coin.holdings -= amount / coin.current_price
-                coin.save()
+                # coin.holdings -= amount / (decimal.Decimal(coin.current_price))
+                # coin.save()
 
                 return redirect('cryptoapp:highlight_view')  # Redirect to the highlight view or any desired page
             else:

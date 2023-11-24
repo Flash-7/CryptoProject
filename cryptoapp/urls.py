@@ -2,11 +2,14 @@ from django.urls import path
 from django.contrib.auth import views as auth_views
 from django.contrib.auth.decorators import login_required
 from . import views
+from CryptoProject import settings
+
 app_name = "cryptoapp"
 urlpatterns = [
     path('', views.home, name='index'),
-    path('home', views.home, name='home'),
-    path('sign-up', views.sign_up, name='sign_up'),
+    path('home/', views.home, name='home'),
+    path('sign-up/', views.sign_up, name='sign_up'),
+    path('logout/', auth_views.LogoutView.as_view(next_page=settings.LOGOUT_REDIRECT_URL), name='logout'),
     path('password_reset/',
          auth_views.PasswordResetView.as_view(
              template_name='registration/password_reset.html'
