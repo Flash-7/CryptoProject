@@ -4,17 +4,23 @@
 {% block style %}
     <style>
         body {
-            background-color: lightcyan;
+            background-color: #051139;
         }
         .row {
             margin: 10% 32%;
+        }
+        .shadow {
+            background-color: #111c44;
+        }
+        .form-text {
+            color: #a0a4b4;
         }
     </style>
 {% endblock %}
 {% block content %}
     <div class="row">
         <div class="col">
-            <div class="shadow p-5 mb-5 bg-white rounded">
+            <div class="shadow p-5 mb-5 text-white rounded">
                 <form method="post">
                   {% csrf_token %}{{form|crispy}}
                   <p>Don't have an account? Create one <a href="/sign-up">Here</a>!</p>

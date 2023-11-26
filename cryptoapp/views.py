@@ -1,8 +1,10 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from .forms import RegisterForm, TransactionForm, AddBalanceForm
-from .models import Coin, Transaction, UserProfile, Portfolio
 from django.contrib.auth import login
+from django.contrib import messages
 from django.http import JsonResponse
+from django.urls import reverse
+from .forms import RegisterForm, UpdateUserForm, TransactionForm, AddBalanceForm
+from .models import Coin, Transaction, UserProfile, Portfolio
 import decimal
 
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
@@ -31,6 +33,21 @@ def sign_up(request):
         form = RegisterForm()
 
     return render(request, 'registration/signup.html', {"form": form})
+
+def user_edit_view(request):
+    if request.method == 'POST':
+        form = UpdateUserForm(request.POST, instance=request.user.userprofile)
+        if form.is_valid():
+            user_profile = form.save()
+            user_profile.user.first_name = form.cleaned_data['first_name']
+            user_profile.user.last_name = form.cleaned_data['last_name']
+            user_profile.user.save()
+            messages.success(request, 'Profile updated successfully!')
+            return redirect('cryptoapp:profile')
+    else:
+        form = UpdateUserForm(instance=request.user.userprofile, initial={'first_name':request.user.first_name, 'last_name':request.user.last_name, 'password':request.user.password})
+
+    return render(request, 'cryptoapp/edit_profile.html', {"form": form})
 
 
 def coin_list(request):
@@ -189,8 +206,6 @@ def sell_coin(request, coin_id):
 def portfolio(request):
     context = {}
     user = request.user
-    # buy_transactions = Transaction.objects.filter(user=user, coin__holdings__gt=0).order_by('coin__name')
-    # total_balance = sum(transaction.amount for transaction in buy_transactions)
     user_profile = UserProfile.objects.get(user=user)
     user_portfolio = user_profile.portfolio_set.all()
     

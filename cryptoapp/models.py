@@ -49,8 +49,11 @@ class Transaction(models.Model):
 
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
+    profile_pic = models.ImageField(default='default.png', upload_to='profile_pics')
+    user_doc = models.ImageField(upload_to='user_document_verification', blank=True)
     balance = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     coin = models.ManyToManyField(Coin, blank=True, related_name='watchlist_coins')
+    verified = models.BooleanField(default=False)
 
 class Portfolio(models.Model):
     user_profile = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
