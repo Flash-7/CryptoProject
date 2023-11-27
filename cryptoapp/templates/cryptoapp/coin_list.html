@@ -41,7 +41,7 @@
 
 {% block content %}
     <h1 class="h3 mb-3" id="header">Coins</h1>
-    <div class="currency-dropdown" style="position: absolute; top: 80px; right: 50px; z-index: 1000;">
+    <div class="currency-dropdown" style="position: absolute; top: 80px; right: 50px;">
         <label for="currency-select">Select Currency:</label>
         <select id="currency-select" onchange="changeCurrency()">
             <option value="usd" {% if selected_currency == 'usd' %}selected{% endif %}>USD</option>
