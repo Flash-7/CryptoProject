@@ -26,8 +26,8 @@ SECRET_KEY = 'django-insecure-uswncft)#untzru(!*e%)dx3$b(k2&@$ui+z0ds9r08nzndos*
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
-
+ALLOWED_HOSTS = ['.vercel.app','127.0.0.1']
+WSGI_APPLICATION = 'vercel_app.wsgi.app'
 
 # Application definition
 
@@ -41,7 +41,7 @@ INSTALLED_APPS = [
     'cryptoapp.apps.CryptoappConfig',
     'crispy_forms',
     'crispy_bootstrap5',
-    'django_extensions'
+    'django_extensions',
 
 ]
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
