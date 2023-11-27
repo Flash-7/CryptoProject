@@ -1,4 +1,5 @@
 from django.db import models
+from django import forms
 
 # Create your models here.
 from django.contrib.auth.models import User
@@ -31,3 +32,32 @@ class Coin(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class Transaction(models.Model):
+    TRANSACTION_TYPE = [
+        ('Buy', 'Buy'),
+        ('Sell', 'Sell'),
+    ]
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    coin = models.ForeignKey(Coin, on_delete=models.CASCADE)
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    quantity = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    timestamp = models.DateTimeField(auto_now_add=True)
+    transaction_type = models.CharField(choices=TRANSACTION_TYPE, blank=False, null=False)
+
+
+class UserProfile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    profile_pic = models.ImageField(default='default.png', upload_to='profile_pics')
+    user_doc = models.ImageField(upload_to='user_document_verification', blank=True)
+    balance = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    coin = models.ManyToManyField(Coin, blank=True, related_name='watchlist_coins')
+    verified = models.BooleanField(default=False)
+
+
+class Portfolio(models.Model):
+    user_profile = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
+    coin = models.ForeignKey(Coin, on_delete=models.CASCADE, blank=True, related_name='portfolio_coins')
+    quantity = models.FloatField()
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
