@@ -37,7 +37,7 @@ def sign_up(request):
 
 def user_edit_view(request):
     if request.method == 'POST':
-        form = UpdateUserForm(request.POST, instance=request.user.userprofile)
+        form = UpdateUserForm(request.POST, request.FILES, instance=request.user.userprofile)
         if form.is_valid():
             user_profile = form.save()
             user_profile.user.first_name = form.cleaned_data['first_name']
@@ -49,8 +49,15 @@ def user_edit_view(request):
         form = UpdateUserForm(instance=request.user.userprofile,
                               initial={'first_name': request.user.first_name, 'last_name': request.user.last_name,
                                        'password': request.user.password})
-
-    return render(request, 'cryptoapp/edit_profile.html', {"form": form})
+    usp = UserProfile.objects.get(user=request.user)
+    if usp.user_doc:
+        usp.verified = True
+        usp.save()
+    else:
+        usp.verified = False
+        usp.save()
+    print(usp.verified)
+    return render(request, 'cryptoapp/edit_profile.html', {"form": form, "verified": usp.verified})
 
 
 def get_exchange_rates():
@@ -247,7 +254,6 @@ def portfolio(request):
     user = request.user
     user_profile = UserProfile.objects.get(user=user)
     user_portfolio = user_profile.portfolio_set.all()
-    transaction_history = Transaction.objects.filter(user=user)
 
     for i in user_portfolio:
         if i.amount == 0.00:
@@ -268,8 +274,12 @@ def portfolio(request):
             return redirect('cryptoapp:portfolio')
 
     return render(request, 'cryptoapp/portfolio.html',
-                  {'assets': user_portfolio, 'add_balance_form': add_balance_form, 'user_profile': user_profile, 'transactions': transaction_history})
+                  {'assets': user_portfolio, 'add_balance_form': add_balance_form, 'user_profile': user_profile,})
 
+def order_history(request):
+    transaction_history = Transaction.objects.filter(user=request.user)
+
+    return render(request, 'cryptoapp/payments_history.html', {'transactions': transaction_history,})
 
 def toggle_watchlist(request, coin_id):
     coin = get_object_or_404(Coin, id=coin_id)

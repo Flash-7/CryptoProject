@@ -15,7 +15,7 @@ class UpdateUserForm(forms.ModelForm):
     last_name = forms.CharField(max_length=32)
     class Meta:
         model = UserProfile
-        fields = ["profile_pic", "first_name", "last_name", "user_doc", "verified"]
+        fields = ["profile_pic", "first_name", "last_name", "user_doc"]
 
 class TransactionForm(forms.ModelForm):
     class Meta:

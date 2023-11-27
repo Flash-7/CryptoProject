@@ -38,6 +38,7 @@ urlpatterns = [
     path('buy_coin/<int:coin_id>/', login_required(views.buy_coin,login_url='login'), name='buy_coin'),
     path('sell_coin/<int:coin_id>/', login_required(views.sell_coin,login_url='login'), name='sell_coin'),
     path('portfolio/', login_required(views.portfolio,login_url='login'), name='portfolio'),
+    path('payments_history/', login_required(views.order_history,login_url='login'), name='payments_history'),
     path('toggle_watchlist/<int:coin_id>/', views.toggle_watchlist, name='toggle_watchlist'),
     path('watchlist/', views.watchlist, name='watchlist'),
 
