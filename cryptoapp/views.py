@@ -108,9 +108,9 @@ def buy_coin(request, coin_id):
             amount = form.cleaned_data['amount']
 
             if quantity:
-                amount = coin.current_price * quantity
+                amount = decimal.Decimal(coin.current_price * quantity)
             elif amount:
-                quantity = amount / (decimal.Decimal(coin.current_price))
+                quantity = float(amount / (decimal.Decimal(coin.current_price)))
 
             if amount <= user_profile.balance:
                 transaction = Transaction.objects.create(
@@ -127,8 +127,8 @@ def buy_coin(request, coin_id):
 
                 try:
                     user_portfolio = Portfolio.objects.get(user_profile=user_profile, coin=coin)
-                    user_portfolio.amount += float(amount)
-                    user_portfolio.quantity += float(quantity)
+                    user_portfolio.amount += amount
+                    user_portfolio.quantity += quantity
                     user_portfolio.save()
                 except:
                     Portfolio.objects.create(
@@ -160,10 +160,10 @@ def sell_coin(request, coin_id):
             amount = form.cleaned_data['amount']
 
             if quantity:
-                amount = coin.current_price * quantity
+                amount = decimal.Decimal(coin.current_price * quantity)
 
             elif amount:
-                quantity = amount / (decimal.Decimal(coin.current_price))
+                quantity = float(amount / (decimal.Decimal(coin.current_price)))
 
             user_portfolio = Portfolio.objects.get(user_profile=user_profile, coin=coin)
 
@@ -180,20 +180,15 @@ def sell_coin(request, coin_id):
                 user_profile.balance += amount
                 user_profile.save()
 
-                try:
-                    user_portfolio = Portfolio.objects.get(user_profile=user_profile, coin=coin)
-                    user_portfolio.amount -= float(amount)
-                    user_portfolio.quantity -= float(quantity)
-                    user_portfolio.save()
-                except:
-                    Portfolio.objects.create(
-                        user_profile=user_profile,
-                        coin=coin,
-                        amount=amount,
-                        quantity=quantity,
-                    )
+                # try:
+                user_portfolio = Portfolio.objects.get(user_profile=user_profile, coin=coin)
+                user_portfolio.amount -= amount
+                user_portfolio.quantity -= quantity
+                
+                user_portfolio.save()
 
                 return redirect('cryptoapp:highlight_view')  # Redirect to the highlight view or any desired page
+
             else:
                 # Insufficient quantity or amount
                 form.add_error('quantity', 'Insufficient quantity or amount for the sale.')
@@ -210,7 +205,8 @@ def portfolio(request):
     user_portfolio = user_profile.portfolio_set.all()
     
     for i in user_portfolio:
-        print(i, i.user_profile.user, i.coin, i.quantity, i.amount)
+        if i.amount == 0.00:
+            i.delete()
 
     add_balance_form = AddBalanceForm()
     if request.method == 'POST':

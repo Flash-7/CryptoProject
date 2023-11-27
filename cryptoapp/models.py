@@ -59,4 +59,4 @@ class Portfolio(models.Model):
     user_profile = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
     coin = models.ForeignKey(Coin, on_delete=models.CASCADE, blank=True, related_name='portfolio_coins')
     quantity = models.FloatField()
-    amount = models.FloatField()
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
