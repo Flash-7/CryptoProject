@@ -31,7 +31,7 @@ urlpatterns = [
          auth_views.PasswordResetCompleteView.as_view(
              template_name='registration/password_reset_complete.html'
          ),
-         name='password_reset_complete'),
+         name='password_+reset_complete'),
     path('coins/', login_required(views.coin_list, login_url='login'), name='coin_list'),
     path('coin/<int:id>/', login_required(views.coin_details, login_url='login'), name='coin_details'),
     path('highlight/', login_required(views.highlight_view, login_url='login'), name='highlight_view'),

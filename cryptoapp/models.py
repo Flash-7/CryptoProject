@@ -55,6 +55,7 @@ class UserProfile(models.Model):
     coin = models.ManyToManyField(Coin, blank=True, related_name='watchlist_coins')
     verified = models.BooleanField(default=False)
 
+
 class Portfolio(models.Model):
     user_profile = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
     coin = models.ForeignKey(Coin, on_delete=models.CASCADE, blank=True, related_name='portfolio_coins')
