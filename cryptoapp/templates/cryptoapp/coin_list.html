@@ -35,17 +35,29 @@
         .pagination {
             margin-top: 20px;
         }
+
     </style>
 {% endblock %}
 
 {% block content %}
     <h1 class="h3 mb-3" id="header">Coins</h1>
+    <div class="currency-dropdown" style="position: absolute; top: 80px; right: 50px; z-index: 1000;">
+        <label for="currency-select">Select Currency:</label>
+        <select id="currency-select" onchange="changeCurrency()">
+            <option value="usd" {% if selected_currency == 'usd' %}selected{% endif %}>USD</option>
+            <option value="cad" {% if selected_currency == 'cad' %}selected{% endif %}>CAD</option>
+            <option value="gbp" {% if selected_currency == 'gbp' %}selected{% endif %}>GBP</option>
+            <option value="yen" {% if selected_currency == 'yen' %}selected{% endif %}>YEN</option>
+        </select>
+    </div>
     <div class="table-responsive">
         <table class="table table-lg table-hover">
             <thead class="thead-dark">
                 <tr>
-                    <th class="w-25">Name</th>
+                    <th class="w-5"> </th>
+                    <th class="w-20">Name</th>
                     <th class="w-15">Symbol</th>
+                    <th class="w-15">Current Price</th>
                     <th class="w-15">24h %</th>
                     <th class="w-15">Market Cap</th>
                     <th class="w-15">Volume</th>
@@ -55,16 +67,44 @@
             <tbody>
                 {% for coin in coins %}
                     <tr class="py-4">
-                        <td class="w-25"><span class="link-style" onclick="location.href='{% url 'cryptoapp:coin_details' coin.id %}'">{{ coin.name }}</span></td>
+                         <td class="w-5">
+                            <a href="{% url 'cryptoapp:toggle_watchlist' coin.id %}" class="watchlist-toggle" data-in-watchlist="{{ coin.in_watchlist }}">
+                                <span class="star {% if coin.in_watchlist %}yellow-star{% endif %}">&#9734;</span>
+                            </a>
+
+                        </td>
+                        <td class="w-20"><span class="link-style" onclick="location.href='{% url 'cryptoapp:coin_details' coin.id %}'">{{ coin.name }}</span></td>
                         <td class="w-15"><span class="link-style" onclick="location.href='{% url 'cryptoapp:coin_details' coin.id %}'">{{ coin.symbol }}</span></td>
+                         <td class="w-15">
+                            <span class="currency-symbol">
+                                {% if selected_currency == 'usd' %}${% endif %}
+                                {% if selected_currency == 'cad' %}CA${% endif %}
+                                {% if selected_currency == 'gbp' %}£{% endif %}
+                                {% if selected_currency == 'yen' %}¥{% endif %}
+                            </span>{{ coin.current_price|floatformat:2 }}
+                        </td>
                         <td class="w-15 {% if coin.price_change_percentage_24h < 0 %}negative-change{% else %}positive-change{% endif %}">
                             <span class="{% if coin.price_change_percentage_24h < 0 %}negative-change{% else %}positive-change{% endif %}">
                                 {% if coin.price_change_percentage_24h < 0 %}&#9660;{% else %}&#9650;{% endif %}
                                 {{ coin.price_change_percentage_24h }}%
                             </span>
                         </td>
-                        <td class="w-15">${{ coin.market_cap|floatformat:2 }}</td>
-                        <td class="w-15">${{ coin.total_volume|floatformat:2 }}</td>
+                        <td class="w-15">
+                            <span class="currency-symbol">
+                                {% if selected_currency == 'usd' %}${% endif %}
+                                {% if selected_currency == 'cad' %}CA${% endif %}
+                                {% if selected_currency == 'gbp' %}£{% endif %}
+                                {% if selected_currency == 'yen' %}¥{% endif %}
+                            </span>{{ coin.market_cap|floatformat:2 }}
+                        </td>
+                        <td class="w-15">
+                            <span class="currency-symbol">
+                                {% if selected_currency == 'usd' %}${% endif %}
+                                {% if selected_currency == 'cad' %}CA${% endif %}
+                                {% if selected_currency == 'gbp' %}£{% endif %}
+                                {% if selected_currency == 'yen' %}¥{% endif %}
+                            </span>{{ coin.total_volume|floatformat:2 }}
+                        </td>
                         <td class="w-20">{{ coin.circulating_supply|floatformat:2 }}</td>
                     </tr>
                 {% endfor %}
@@ -76,12 +116,12 @@
     <ul class="pagination nav nav-tabs">
         {% if coins.has_previous %}
             <li class="page-item nav-item">
-                <a class="page-link nav-link" href="?page=1" aria-label="First">
+                <a class="page-link nav-link" href="?currency={{ selected_currency }}&page=1" aria-label="First">
                     <span aria-hidden="true">&laquo;&laquo;</span>
                 </a>
             </li>
             <li class="page-item nav-item">
-                <a class="page-link nav-link" href="?page={{ coins.previous_page_number }}" aria-label="Previous">
+                <a class="page-link nav-link" href="?currency={{ selected_currency }}&page={{ coins.previous_page_number }}" aria-label="Previous">
                     <span aria-hidden="true">&laquo;</span>
                 </a>
             </li>
@@ -89,24 +129,76 @@
 
         {% for page_num in coins.paginator.page_range %}
             <li class="page-item nav-item {% if page_num == coins.number %}active{% endif %}">
-                <a class="page-link nav-link" href="?page={{ page_num }}">{{ page_num }}</a>
+                <a class="page-link nav-link" href="?currency={{ selected_currency }}&page={{ page_num }}">{{ page_num }}</a>
             </li>
         {% endfor %}
 
         {% if coins.has_next %}
             <li class="page-item nav-item">
-                <a class="page-link nav-link" href="?page={{ coins.next_page_number }}" aria-label="Next">
+                <a class="page-link nav-link" href="?currency={{ selected_currency }}&page={{ coins.next_page_number }}" aria-label="Next">
                     <span aria-hidden="true">&raquo;</span>
                 </a>
             </li>
             <li class="page-item nav-item">
-                <a class="page-link nav-link" href="?page={{ coins.paginator.num_pages }}" aria-label="Last">
+                <a class="page-link nav-link" href="?currency={{ selected_currency }}&page={{ coins.paginator.num_pages }}" aria-label="Last">
                     <span aria-hidden="true">&raquo;&raquo;</span>
                 </a>
             </li>
         {% endif %}
     </ul>
 </nav>
+
+<script>
+function changeCurrency() {
+    const currencySelect = document.getElementById('currency-select');
+    const selectedCurrency = currencySelect.value;
+    const currentPage = new URLSearchParams(window.location.search).get('page') || 1;
+    window.location.href = `?currency=${selectedCurrency}&page=${currentPage}`;
+}
+document.addEventListener('DOMContentLoaded', function() {
+    const watchlistToggle = document.querySelectorAll('.watchlist-toggle');
+
+    watchlistToggle.forEach(function(element) {
+        // Get the initial watchlist status from the data attribute
+        const inWatchlist = element.dataset.inWatchlist === 'true';
+
+        // Check local storage for the watchlist status
+        const localStorageKey = `watchlist_${element.getAttribute('href')}`;
+        const storedInWatchlist = localStorage.getItem(localStorageKey);
+
+        // Set the initial star color based on the watchlist status
+        const star = element.querySelector('.star');
+        star.classList.toggle('yellow-star', inWatchlist || storedInWatchlist === 'true');
+
+        element.addEventListener('click', function(event) {
+            // Get the URL from the href attribute
+            const url = element.getAttribute('href');
+
+            // Make an AJAX request to the toggle_watchlist view
+            fetch(url, {
+                method: 'POST',
+                credentials: 'same-origin',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}' // Include the CSRF token
+                },
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Toggle the star color based on the response
+                star.classList.toggle('yellow-star', data.in_watchlist);
+
+                // Store the watchlist status in local storage
+                localStorage.setItem(localStorageKey, data.in_watchlist);
+            });
+
+            // Prevent the default behavior of the anchor tag
+            event.preventDefault();
+        });
+    });
+});
+</script>
+
 
 <style>
     .pagination {
@@ -128,7 +220,14 @@
         border-color: #007bff; /* Border color for active link */
         color: #fff; /* Text color for active link */
     }
+.watchlist-toggle {
+    text-decoration: none;
+}
+.yellow-star {
+    color: yellow;
+}
 </style>
+
 
 
 

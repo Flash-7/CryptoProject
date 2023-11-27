@@ -1,0 +1,70 @@
+<!-- templates/cryptoapp/portfolio.html -->
+
+{% extends "cryptoapp/base_logged_in.html" %}
+
+{% block title %}Portfolio - CryptoApp{% endblock %}
+
+{% block content %}
+    <div class="container mt-4">
+        <h1 class="mb-3">Portfolio</h1>
+        {% if assets %}
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Coin</th>
+                        <th scope="col">Quantity</th>
+                        <th scope="col">Amount</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for asset in assets %}
+                        <tr>
+                            <th scope="row">{{ forloop.counter }}</th>
+                            <td><span class="link-style" onclick="location.href='{% url 'cryptoapp:coin_details' asset.coin.id %}'">{{ asset.coin.name }}</span></td>
+                            <td>{{ asset.quantity }}</td>
+                            <td>${{ asset.amount|floatformat:2 }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p>You do not have any coins in your portfolio.</p>
+        {% endif %}
+        <p>Current Balance: ${{ user_profile.balance|floatformat:2 }}</p>
+        <!-- Add Balance Form -->
+        <form method="post" class="mt-4">
+            {% csrf_token %}
+            {{ add_balance_form.as_p }}
+            <button type="submit" class="btn btn-primary">Add Balance</button>
+        </form>
+        {% if transactions %}
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Coin</th>
+                        <th scope="col">Quantity</th>
+                        <th scope="col">Amount</th>
+                        <th scope="col">Type</th>
+                        <th scope="col">Timestamp</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for transaction in transactions %}
+                        <tr>
+                            <th scope="row">{{ forloop.counter }}</th>
+                            <td><span class="link-style" onclick="location.href='{% url 'cryptoapp:coin_details' transaction.coin.id %}'">{{ transaction.coin.name }}</span></td>
+                            <td>{{ transaction.quantity }}</td>
+                            <td>${{ transaction.amount|floatformat:2 }}</td>
+                            <td>{{ transaction.transaction_type }}</td>
+                            <td>{{ transaction.timestamp }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p>No transactions to show.</p>
+        {% endif %}
+    </div>
+{% endblock %}

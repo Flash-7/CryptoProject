@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -25,8 +26,8 @@ SECRET_KEY = 'django-insecure-uswncft)#untzru(!*e%)dx3$b(k2&@$ui+z0ds9r08nzndos*
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
-
+ALLOWED_HOSTS = ['.vercel.app','127.0.0.1']
+WSGI_APPLICATION = 'vercel_app.wsgi.app'
 
 # Application definition
 
@@ -40,7 +41,7 @@ INSTALLED_APPS = [
     'cryptoapp.apps.CryptoappConfig',
     'crispy_forms',
     'crispy_bootstrap5',
-    'django_extensions'
+    'django_extensions',
 
 ]
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
@@ -80,6 +81,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'django.template.context_processors.media',
             ],
         },
     },
@@ -145,4 +147,7 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 LOGIN_REDIRECT_URL = '/home'
-LOGOUT_REDIRECT_URL = '/login'
+LOGOUT_REDIRECT_URL = '/accounts/login'
+
+MEDIA_ROOT = os.path.join(BASE_DIR, 'cryptoapp/media/')
+MEDIA_URL = '/media/'

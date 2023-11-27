@@ -1,0 +1,76 @@
+<!-- buy_sell_form.html -->
+{% extends "cryptoapp/base_logged_in.html" %}
+
+{% block title %}
+    {% if action == 'buy' %}Buy{% else %}Sell{% endif %} - {{ coin.name }} - CryptoApp
+{% endblock %}
+
+{% block content %}
+    <style>
+        /* Add CSS styles for the form */
+        .styled-form {
+            max-width: 400px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .styled-form label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+
+        .styled-form input[type="text"],
+        .styled-form input[type="number"],
+        .styled-form input[type="submit"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 16px;
+            box-sizing: border-box;
+        }
+
+        .styled-form button {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .styled-form button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+
+    <div class="container mt-5">
+        <h1 class="h3 mb-3">{% if action == 'buy' %}Buy{% else %}Sell{% endif %} {{ coin.name }}</h1>
+        {% if messages %}
+        <div class="alert alert-success" role="alert">
+            {% for message in messages %}
+                {{ message }}
+            {% endfor %}
+        </div>
+        {% endif %}
+        <form method="post" id="transactionForm" class="styled-form">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="btn btn-primary">{% if action == 'buy' %}Buy{% else %}Sell{% endif %}</button>
+        </form>
+
+           <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                var form = document.getElementById('transactionForm');
+                var quantityField = form.querySelector('#id_quantity');
+                var amountField = form.querySelector('#id_amount');
+
+                form.addEventListener('change', function () {
+                    // No need to block the fields, allow the user to choose either amount or quantity
+                });
+            });
+        </script>
+    </div>
+{% endblock %}
