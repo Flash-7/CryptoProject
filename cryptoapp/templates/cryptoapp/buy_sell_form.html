@@ -48,6 +48,13 @@
 
     <div class="container mt-5">
         <h1 class="h3 mb-3">{% if action == 'buy' %}Buy{% else %}Sell{% endif %} {{ coin.name }}</h1>
+        {% if messages %}
+        <div class="alert alert-success" role="alert">
+            {% for message in messages %}
+                {{ message }}
+            {% endfor %}
+        </div>
+        {% endif %}
         <form method="post" id="transactionForm" class="styled-form">
             {% csrf_token %}
             {{ form.as_p }}
