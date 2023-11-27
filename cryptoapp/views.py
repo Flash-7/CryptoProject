@@ -2,7 +2,6 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login
 from django.contrib import messages
 from django.http import JsonResponse
-from django.urls import reverse
 from .forms import RegisterForm, UpdateUserForm, TransactionForm, AddBalanceForm
 from .models import Coin, Transaction, UserProfile, Portfolio
 import decimal
@@ -74,11 +73,6 @@ def convert_currency(original_price, target_currency, exchange_rates):
     else:
         # Handle the case when the target currency is not found in exchange_rates
         return original_price
-
-
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from django.shortcuts import render
-from .models import Coin
 
 
 def coin_list(request):
@@ -183,8 +177,9 @@ def buy_coin(request, coin_id):
                         amount=amount,
                         quantity=quantity,
                     )
-
-                return redirect('cryptoapp:coin_list')  # Redirect to the highlight view or any desired page
+                messages.success(request,"Transaction successfull!")
+                form = TransactionForm()
+                return render(request, 'cryptoapp/buy_sell_form.html', {'form': form, 'action': 'buy', 'coin': coin})
             else:
                 # Insufficient balance
                 form.add_error('amount', 'Insufficient balance for the purchase.')
@@ -232,8 +227,11 @@ def sell_coin(request, coin_id):
                 user_portfolio.quantity -= quantity
                 
                 user_portfolio.save()
-
-                return redirect('cryptoapp:highlight_view')  # Redirect to the highlight view or any desired page
+                
+                messages.success(request,"Transaction successfull!")
+                form = TransactionForm()
+                return render(request, 'cryptoapp/buy_sell_form.html', {'form': form, 'action': 'sell', 'coin': coin})
+                # return redirect('cryptoapp:highlight_view')  # Redirect to the highlight view or any desired page
 
             else:
                 # Insufficient quantity or amount
@@ -249,6 +247,7 @@ def portfolio(request):
     user = request.user
     user_profile = UserProfile.objects.get(user=user)
     user_portfolio = user_profile.portfolio_set.all()
+    transaction_history = Transaction.objects.filter(user=user)
 
     for i in user_portfolio:
         if i.amount == 0.00:
@@ -269,7 +268,7 @@ def portfolio(request):
             return redirect('cryptoapp:portfolio')
 
     return render(request, 'cryptoapp/portfolio.html',
-                  {'assets': user_portfolio, 'add_balance_form': add_balance_form, 'user_profile': user_profile})
+                  {'assets': user_portfolio, 'add_balance_form': add_balance_form, 'user_profile': user_profile, 'transactions': transaction_history})
 
 
 def toggle_watchlist(request, coin_id):
